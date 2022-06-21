@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace IdleActionFarm.Runtime.Growing
 {
-    public delegate void OnBladeCollision(Growable target);
+    public delegate void GrowableEvent(Growable target);
 
     public class BladeCollisionController : MonoBehaviour
     {
-        public event OnBladeCollision OnBladeCollision;
+        public event GrowableEvent OnBladeCollision;
 
         private void OnCollisionEnter(Collision collision)
         {

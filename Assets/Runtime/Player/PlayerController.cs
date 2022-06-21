@@ -11,9 +11,9 @@ namespace IdleActionFarm.Runtime.Player
         [SerializeField] [Range(10f, 50f)] private float movementSpeed;
 
         [SerializeField] private Blade blade;
+        [SerializeField] private float gravityModifier = 5f;
 
-
-        private CharacterController _characterController;
+        private Rigidbody _rigidbody;
         private PlayerControls _playerControls;
         private Animator _animator;
         private Vector3 _curMovement;
@@ -21,7 +21,7 @@ namespace IdleActionFarm.Runtime.Player
 
         private void Awake()
         {
-            _characterController = GetComponent<CharacterController>();
+            _rigidbody = GetComponent<Rigidbody>();
             _animator = GetComponent<Animator>();
             _playerControls = new PlayerControls();
             _playerControls.Game.Move.performed += OnMove;
@@ -34,15 +34,17 @@ namespace IdleActionFarm.Runtime.Player
         private void Start()
         {
             _playerControls.Enable();
-            isHarvesting = false;
+            _isHarvesting = false;
         }
 
-        private bool isHarvesting;
+        private bool _isHarvesting;
 
         private void OnHarvest(InputAction.CallbackContext obj)
         {
+            if (_isHarvesting) return;
+
             _animator.Play("Harvesting");
-            isHarvesting = true;
+            _isHarvesting = true;
             blade.gameObject.SetActive(true);
             blade.enabled = true;
             blade.HarvestingBegan();
@@ -52,7 +54,7 @@ namespace IdleActionFarm.Runtime.Player
 
         public void OnHarvestEnded()
         {
-            isHarvesting = false;
+            _isHarvesting = false;
             blade.gameObject.SetActive(false);
         }
 
@@ -65,14 +67,16 @@ namespace IdleActionFarm.Runtime.Player
             _animator.SetFloat(Movement, _curMovement != Vector3.zero ? 1f : 0f);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            if (!isHarvesting && _curMovement != Vector3.zero)
+            _rigidbody.AddForce(new Vector3(0f, -9.81f * gravityModifier, 0f), ForceMode.Impulse);
+            if (!_isHarvesting && _curMovement != Vector3.zero)
             {
                 transform.rotation =
                     Quaternion.LookRotation(_curMovement, Vector3.up);
 
-                _characterController.Move(_curMovement * (movementSpeed * Time.deltaTime));
+                _rigidbody.AddForce(_curMovement * (movementSpeed * 10f), ForceMode.Impulse);
+                // (_curMovement * (movementSpeed * Time.deltaTime));
             }
         }
     }
