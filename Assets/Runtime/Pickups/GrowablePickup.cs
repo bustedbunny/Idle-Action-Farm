@@ -9,9 +9,20 @@ namespace IdleActionFarm.Runtime.Pickups
         [SerializeField] private uint moneyPrice;
         public uint MoneyPrice => moneyPrice;
         private Collider _collider;
-        private void Awake() { _collider = GetComponent<Collider>(); }
+        private Rigidbody _rigidbody;
 
-        public void NotifyPicked() { _collider.enabled = false; }
+        private void Awake()
+        {
+            _collider = GetComponent<Collider>();
+            _rigidbody = GetComponent<Rigidbody>();
+        }
+
+        public void NotifyPicked()
+        {
+            _collider.enabled = false;
+            _rigidbody.isKinematic = true;
+        }
+
         public bool IsFree => _collider.enabled;
     }
 }

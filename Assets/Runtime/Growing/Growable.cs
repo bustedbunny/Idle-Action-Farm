@@ -36,7 +36,9 @@ namespace IdleActionFarm.Runtime.Growing
             }
 
             var pickup = Instantiate(pickupPrefab);
-            pickup.transform.position = transform.position;
+            var pos = transform.position;
+            pos.y += transform.lossyScale.y * 2f;
+            pickup.transform.position = pos;
 
 
             UpdateTransform();
