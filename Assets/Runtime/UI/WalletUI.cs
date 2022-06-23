@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using IdleActionFarm.Runtime.Wallet;
 using TMPro;
@@ -72,6 +73,10 @@ namespace IdleActionFarm.Runtime.UI
 
         private async UniTask AddToWalletAnimationAsync(Transform from, Transform to)
         {
+            var ct = CancellationTokenSource.CreateLinkedTokenSource(from.GetCancellationTokenOnDestroy(),
+                    to.GetCancellationTokenOnDestroy())
+                .Token;
+
             Vector3 initPosition = RectTransformUtility.WorldToScreenPoint(playerCamera, from.position);
 
             var coin = Instantiate(coinPrefab, text.canvas.transform);
@@ -88,7 +93,7 @@ namespace IdleActionFarm.Runtime.UI
                 tran.position = math.lerp(to.position, initPosition, time / coinFlyTime);
                 tran.localScale = math.lerp(endScale, Vector3.zero, time / coinFlyTime);
 
-                await UniTask.Yield(PlayerLoopTiming.Update);
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
             }
 
             Destroy(coin);
