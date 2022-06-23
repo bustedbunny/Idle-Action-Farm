@@ -10,6 +10,7 @@ namespace IdleActionFarm.Runtime.Barn
 {
     public class Barn : MonoBehaviour
     {
+        [SerializeField] private int sellInterval;
         private Dictionary<int, Backpack.Backpack> _backpacks;
 
         private void Awake() { _backpacks = new Dictionary<int, Backpack.Backpack>(); }
@@ -29,16 +30,19 @@ namespace IdleActionFarm.Runtime.Barn
 
         private async UniTaskVoid ProcessBackpacks()
         {
+            var ct = this.GetCancellationTokenOnDestroy();
             while (_backpacks.Count > 0)
             {
                 foreach (var backpack in _backpacks.Values)
                 {
                     var obj = backpack.Take();
                     if (obj == null) continue;
+                    backpack.Wallet.AddMoney(obj.MoneyPrice, gameObject);
+
                     GrabPickupAsync(obj).Forget();
                 }
 
-                await UniTask.Yield(PlayerLoopTiming.Update);
+                await UniTask.Delay(sellInterval, false, PlayerLoopTiming.Update, ct);
             }
         }
 

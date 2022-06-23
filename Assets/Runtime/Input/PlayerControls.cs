@@ -104,8 +104,19 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""77a878b7-2791-408e-a5c0-681d458b7290"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""a72cb1ed-b988-4b72-8e3c-09e120cf7cd8"",
-                    ""path"": ""<Mouse>/leftButton"",
+                    ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -116,7 +127,13 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
             ]
         }
     ],
-    ""controlSchemes"": []
+    ""controlSchemes"": [
+        {
+            ""name"": ""Player Control Scheme"",
+            ""bindingGroup"": ""Player Control Scheme"",
+            ""devices"": []
+        }
+    ]
 }");
         // Game
         m_Game = asset.FindActionMap("Game", throwIfNotFound: true);
@@ -218,6 +235,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         }
     }
     public GameActions @Game => new GameActions(this);
+    private int m_PlayerControlSchemeSchemeIndex = -1;
+    public InputControlScheme PlayerControlSchemeScheme
+    {
+        get
+        {
+            if (m_PlayerControlSchemeSchemeIndex == -1) m_PlayerControlSchemeSchemeIndex = asset.FindControlSchemeIndex("Player Control Scheme");
+            return asset.controlSchemes[m_PlayerControlSchemeSchemeIndex];
+        }
+    }
     public interface IGameActions
     {
         void OnMove(InputAction.CallbackContext context);

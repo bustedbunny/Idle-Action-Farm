@@ -36,7 +36,7 @@ namespace IdleActionFarm.Runtime.Growing
             }
 
             var pickup = Instantiate(pickupPrefab);
-            pickup.transform.position = transform.position; 
+            pickup.transform.position = transform.position;
 
 
             UpdateTransform();
@@ -45,6 +45,7 @@ namespace IdleActionFarm.Runtime.Growing
 
         public async UniTask GrowAsync()
         {
+            var ct = this.GetCancellationTokenOnDestroy();
             while (true)
             {
                 _stage += Time.deltaTime / growingTime;
@@ -56,7 +57,7 @@ namespace IdleActionFarm.Runtime.Growing
                 }
 
                 UpdateTransform();
-                await UniTask.Yield(PlayerLoopTiming.Update);
+                await UniTask.Yield(PlayerLoopTiming.Update, ct);
             }
         }
 

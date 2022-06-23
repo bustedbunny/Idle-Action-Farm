@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using IdleActionFarm.Runtime.Pickups;
 using Unity.Mathematics;
@@ -6,6 +7,8 @@ using Object = UnityEngine.Object;
 
 namespace IdleActionFarm.Runtime.Backpack
 {
+    public delegate void OnBackPackChange(int _activeSlotInd);
+
     public class Backpack : MonoBehaviour
     {
         [SerializeField] private Vector3 positionOffset;
@@ -17,7 +20,6 @@ namespace IdleActionFarm.Runtime.Backpack
         private Transform[] _backpackSlots;
 
         // Коллайдер для триггера пикап механики (отключается при переполнении)
-        private Collider _collider;
 
         // Стак для рюкзака
         private Stack<GrowablePickup> _backpackStack;
@@ -32,9 +34,13 @@ namespace IdleActionFarm.Runtime.Backpack
             rotationSpeed = 360f
         };
 
+        [SerializeField] private Wallet.Wallet wallet;
+        public Wallet.Wallet Wallet => wallet;
+
+        public event OnBackPackChange OnBackPackChange;
+
         private void Awake()
         {
-            _collider = GetComponent<Collider>();
             _backpackSlots = new Transform[40];
             _backpackStack = new Stack<GrowablePickup>(40);
 
@@ -58,6 +64,7 @@ namespace IdleActionFarm.Runtime.Backpack
             }
         }
 
+        private void Start() { OnBackPackChange?.Invoke(_activeSlot); }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -76,7 +83,6 @@ namespace IdleActionFarm.Runtime.Backpack
         {
             if (_activeSlot >= 40)
             {
-                _collider.enabled = false;
                 return;
             }
 
@@ -84,9 +90,10 @@ namespace IdleActionFarm.Runtime.Backpack
             var slot = _backpackSlots[_activeSlot];
             _activeSlot++;
             pickup.NotifyPicked();
+            OnBackPackChange?.Invoke(_activeSlot);
 
 
-            BackpackAnimations.PutObjectAnimatedAsync(pickup.gameObject, slot, animationSettings).Forget();
+            BackpackAnimations.PutObjectAnimatedAsync(pickup.gameObject, slot, animationSettings);
         }
 
 
@@ -95,7 +102,7 @@ namespace IdleActionFarm.Runtime.Backpack
             if (_activeSlot <= 0) return null;
             var pickup = _backpackStack.Pop();
             _activeSlot--;
-            pickup.NotifyDropped();
+            OnBackPackChange?.Invoke(_activeSlot);
             return pickup;
         }
 

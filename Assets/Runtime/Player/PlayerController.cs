@@ -13,7 +13,7 @@ namespace IdleActionFarm.Runtime.Player
         [SerializeField] private Blade blade;
         [SerializeField] private float gravityModifier = 5f;
 
-        private Rigidbody _rigidbody;
+        private CharacterController _cc;
         private PlayerControls _playerControls;
         private Animator _animator;
         private Vector3 _curMovement;
@@ -21,7 +21,7 @@ namespace IdleActionFarm.Runtime.Player
 
         private void Awake()
         {
-            _rigidbody = GetComponent<Rigidbody>();
+            _cc = GetComponent<CharacterController>();
             _animator = GetComponent<Animator>();
             _playerControls = new PlayerControls();
             _playerControls.Game.Move.performed += OnMove;
@@ -67,15 +67,21 @@ namespace IdleActionFarm.Runtime.Player
             _animator.SetFloat(Movement, _curMovement != Vector3.zero ? 1f : 0f);
         }
 
-        private void FixedUpdate()
+        private void OnControllerColliderHit(ControllerColliderHit hit)
         {
-            _rigidbody.AddForce(new Vector3(0f, -9.81f * gravityModifier, 0f), ForceMode.Impulse);
+            if (hit.rigidbody != null)
+                hit.rigidbody.AddForce(_curMovement * 50f);
+        }
+
+        private void Update()
+        {
+            _cc.Move(new Vector3(0f, -9.81f, 0f) * Time.deltaTime);
             if (!_isHarvesting && _curMovement != Vector3.zero)
             {
                 transform.rotation =
                     Quaternion.LookRotation(_curMovement, Vector3.up);
 
-                _rigidbody.AddForce(_curMovement * (movementSpeed * 10f), ForceMode.Impulse);
+                _cc.Move(_curMovement * (movementSpeed * Time.deltaTime));
                 // (_curMovement * (movementSpeed * Time.deltaTime));
             }
         }

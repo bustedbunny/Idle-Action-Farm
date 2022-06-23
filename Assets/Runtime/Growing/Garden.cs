@@ -36,7 +36,6 @@ namespace IdleActionFarm.Runtime.Growing
                 for (int j = 0; j < sqrt; j++)
                 {
                     pos.z = j / sqrt - 1 / 3f;
-                    Debug.Log(pos);
                     var newGrowable = Instantiate(growablePrefab,
                         curPosition + Vector3.Scale(curScale, pos),
                         Quaternion.identity,
